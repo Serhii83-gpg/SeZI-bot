@@ -4,7 +4,7 @@ import telebot
 import stripe
 
 # Инициализация
-API_TOKEN = os.getenv("TELEGRAM_API_TOKEN")
+API_TOKEN = os.getenv("API_TOKEN")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 bot = telebot.TeleBot(API_TOKEN)
 app = Flask(__name__)
