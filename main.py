@@ -16,28 +16,28 @@ stripe.api_key = STRIPE_SECRET_KEY
 # Команда /start
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-bot.reply_to(message, "Добро пожаловать в SeZI! Напишите, что хотите купить.")
+    bot.reply_to(message, "Добро пожаловать в SeZI! Напишите, что хотите купить.")
 
 # Обработка Webhook от Telegram
 @app.route(f"/{API_TOKEN}", methods=['POST'])
 def webhook():
-json_str = request.get_data().decode('utf-8')
-update = telebot.types.Update.de_json(json_str)
-bot.process_new_updates([update])
-return 'OK', 200
+    json_str = request.get_data().decode('utf-8')
+    update = telebot.types.Update.de_json(json_str)
+    bot.process_new_updates([update])
+    return 'OK', 200
 
 # Проверка сервера
 @app.route("/", methods=['GET'])
 def index():
-return "SeZI Bot is running!"
+    return "SeZI Bot is running!"
 
 # Установка Webhook (вручную вызывается при запуске)
 def set_webhook():
-url = f"https://api.telegram.org/bot{API_TOKEN}/setWebhook"
-data = {"url": f"{WEBHOOK_URL}/{API_TOKEN}"}
-response = requests.post(url, data=data)
-print("Webhook set:", response.text)
+    url = f"https://api.telegram.org/bot{API_TOKEN}/setWebhook"
+    data = {"url": f"{WEBHOOK_URL}/{API_TOKEN}"}
+    response = requests.post(url, data=data)
+    print("Webhook set:", response.text)
 
 if __name__ == "__main__":
-set_webhook()
-app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    set_webhook()
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
