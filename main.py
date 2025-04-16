@@ -1,43 +1,41 @@
-import os
-from flask import Flask, request
 import telebot
-import stripe
-import requests
+from flask import Flask, request
 
-# Инициализация
-API_TOKEN = os.getenv("API_TOKEN")
-STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
-WEBHOOK_URL = os.getenv("WEBHOOK_URL")
-
-bot = telebot.TeleBot(API_TOKEN)
+TOKEN = 'ТВОЙ_ТОКЕН_ОТ_БОТА'  # замени на свой токен
+bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
-stripe.api_key = STRIPE_SECRET_KEY
 
 # Команда /start
 @bot.message_handler(commands=['start'])
-def send_welcome(message):
-    bot.reply_to(message, "Добро пожаловать в SeZI! Напишите, что хотите купить.")
+def start_message(message):
+    bot.send_message(message.chat.id, "Добро пожаловать в SeZI! Напишите, что хотите купить.")
 
-# Обработка Webhook от Telegram
-@app.route(f"/{API_TOKEN}", methods=['POST'])
+# Обработка текста (покупка товара)
+@bot.message_handler(func=lambda message: True)
+def handle_message(message):
+    user_text = message.text.lower()
+    if "айфон" in user_text:
+        bot.send_message(message.chat.id, "Айфон есть в наличии! Цена: 999$. Оплатите по ссылке: https://example.com/pay")
+    elif "чехол" in user_text:
+        bot.send_message(message.chat.id, "Чехлы от 9$. Вот ссылка на оплату: https://example.com/pay")
+    else:
+        bot.send_message(message.chat.id, "Извините, этого товара нет. Напишите, что вы хотите купить.")
+
+# Webhook для Render
+@app.route(f'/{TOKEN}', methods=['POST'])
 def webhook():
-    json_str = request.get_data().decode('utf-8')
+    json_str = request.get_data().decode('UTF-8')
     update = telebot.types.Update.de_json(json_str)
     bot.process_new_updates([update])
     return 'OK', 200
 
-# Проверка сервера
-@app.route("/", methods=['GET'])
+# Устанавливаем webhook при запуске
+@app.route('/')
 def index():
-    return "SeZI Bot is running!"
-
-# Установка Webhook (вручную вызывается при запуске)
-def set_webhook():
-    url = f"https://api.telegram.org/bot{API_TOKEN}/setWebhook"
-    data = {"url": f"{WEBHOOK_URL}/{API_TOKEN}"}
-    response = requests.post(url, data=data)
-    print("Webhook set:", response.text)
+    bot.remove_webhook()
+    bot.set_webhook(url=f'https://ТВОЙ_RENDER_URL/{TOKEN}')  # замени на свой Render URL
+    return "Webhook установлен!"
 
 if __name__ == "__main__":
-    set_webhook()
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run()
+
