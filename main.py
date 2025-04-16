@@ -32,7 +32,7 @@ def index():
     return "SeZI Bot is running!"
 
 # Установка Webhook
-@app.before_first_request
+@app.before_serving
 def set_webhook():
     url = f"https://api.telegram.org/bot{API_TOKEN}/setWebhook"
     data = {"url": f"{WEBHOOK_URL}/{API_TOKEN}"}
